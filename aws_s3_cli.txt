@@ -1,0 +1,52 @@
+#configure the S3 account
+[root@rtlsh12 ~]# aws configure --profile webscale
+AWS Access Key ID [None]: D5AN703Z9FYM4QA94FOY
+AWS Secret Access Key [None]: Mh4Eax22r+lx/kSmj78/yMtheUXuNbbR37dLnGYx
+Default region name [None]: us-gov-west-1
+Default output format [json]: json
+[root@rtlsh12 ~]#
+#after finished configuration then will create two files as below
+[root@rtlsh12 ~]# cat .aws/credentials 
+[webscale]
+aws_access_key_id = D5AN703Z9FYM4QA94FOY
+aws_secret_access_key = okKzeaHMGTRA5+8xSDZtcRWvTUiuSBpGxcLhPm9V
+[root@rtlsh12 ~]# cat .aws/config 
+[profile webscale]
+region = us-east-1
+output = json
+
+#list buckets
+aws s3 ls --profile webscale --endpoint-url https://172.16.0.167:8082 --ca-bundle ~/grid_lod.crt
+aws s3 ls --profile webscale --endpoint-url https://172.16.0.167:8082 --no-verify-ssl
+aws s3 ls --profile webscale --endpoint-url http://172.16.0.167:8084
+
+#create a bucket
+aws s3 mb s3://3-3 --profile webscale --endpoint-url http://172.16.0.167:8084
+aws s3 mb s3://3-4 --profile webscale --endpoint-url http://172.16.0.167:8084
+
+#copy a file into this bucket
+aws s3 cp ./Python-3.7.6.tgz s3://3-3/ --profile webscale --endpoint-url http://172.16.0.167:8084
+
+#copy the object to local
+aws s3 cp s3://3-2/ONTAP-9.0-commands.pdf ./ONTAP-9.0-commands.pdf --profile webscale --endpoint-url http://172.16.0.168:8084
+
+#copy the object between buckets
+aws s3 cp s3://3-2/ONTAP-9.0-commands.pdf s3://3-3/ONTAP-9.0-commands.pdf --profile webscale --endpoint-url http://172.16.0.168:8084
+
+#sync a whole directory
+aws s3 sync ./Python-3.7.6 s3://3-4/ --profile webscale --endpoint-url http://172.16.0.167:8084
+
+#list the contents in the bucket
+aws s3 ls s3://3-4/ --profile webscale --endpoint-url http://172.16.0.167:8084
+
+#Delete a file in S3
+aws s3 rm s3://3-4/setup.py --profile webscale --endpoint-url http://172.16.0.167:8084
+
+#move the object between buckets
+aws s3 mv s3://3-2/ONTAP-9.6-commands.pdf s3://3-3/ONTAP-9.6-commands.pdf --profile webscale --endpoint-url http://172.16.0.167:8084
+
+#remove a non-empty bucket
+aws s3 rb s3://3-3 --force --profile webscale --endpoint-url http://172.16.0.167:8084
+
+#remove a empty bucket
+aws s3 rb s3://3-4 --profile webscale --endpoint-url http://172.16.0.167:8084
